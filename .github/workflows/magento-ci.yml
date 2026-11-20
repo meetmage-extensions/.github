@@ -35,8 +35,13 @@ jobs:
         run: |
           composer global config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
           composer global require --no-progress magento/magento-coding-standard
-          # The package only registers itself when it is the root project, so register it here
-          "$(composer global config bin-dir --absolute)/phpcs" --config-set installed_paths "$(composer global config vendor-dir --absolute)/magento/magento-coding-standard"
+          # The standard only registers itself when it is the root project, so register it here,
+          # together with PHPCompatibility, whose sniffs the Magento2 ruleset references.
+          VENDOR="$(composer global config vendor-dir --absolute)"
+          PATHS="$VENDOR/magento/magento-coding-standard"
+          if [ -d "$VENDOR/phpcompatibility/php-compatibility" ]; then PATHS="$PATHS,$VENDOR/phpcompatibility/php-compatibility"; fi
+          "$(composer global config bin-dir --absolute)/phpcs" --config-set installed_paths "$PATHS"
+          "$(composer global config bin-dir --absolute)/phpcs" -i
       - name: Run PHPCS
         run: |
           set -o pipefail
