@@ -1,0 +1,28 @@
+# Reusable release workflow: creates a GitHub Release with generated notes when a
+# v* tag is pushed. Packagist picks up new tags itself through its GitHub integration.
+#
+# In an extension repo's .github/workflows/release.yml:
+#
+#   on:
+#     push:
+#       tags: ['v*']
+#   jobs:
+#     release:
+#       uses: meetmage-extensions/.github/.github/workflows/release.yml@main
+#       permissions:
+#         contents: write
+name: Release
+
+on:
+  workflow_call:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
