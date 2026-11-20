@@ -35,8 +35,12 @@ jobs:
         run: |
           composer global config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
           composer global require --no-progress magento/magento-coding-standard
+          # The package only registers itself when it is the root project, so register it here
+          "$(composer global config bin-dir --absolute)/phpcs" --config-set installed_paths "$(composer global config vendor-dir --absolute)/magento/magento-coding-standard"
       - name: Run PHPCS
-        run: $(composer global config bin-dir --absolute)/phpcs --standard=Magento2 --report=checkstyle src/ | cs2pr
+        run: |
+          set -o pipefail
+          "$(composer global config bin-dir --absolute)/phpcs" --standard=Magento2 --report=checkstyle src/ | cs2pr
 
   tests:
     name: PHPStan + PHPUnit (PHP ${{ matrix.php }})
