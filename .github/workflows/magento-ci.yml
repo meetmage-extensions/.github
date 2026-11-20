@@ -39,9 +39,14 @@ jobs:
           # PHPCompatibility fork with PHPCS. Do not override installed_paths by hand.
           "$(composer global config bin-dir --absolute)/phpcs" -i
       - name: Run PHPCS
+        # PHPCS prints notices (e.g. deprecated sniffs) to stdout, so the checkstyle report goes
+        # to a file for cs2pr (inline annotations) and the readable report goes to the log.
         run: |
-          set -o pipefail
-          "$(composer global config bin-dir --absolute)/phpcs" --standard=Magento2 --report=checkstyle src/ | cs2pr
+          status=0
+          "$(composer global config bin-dir --absolute)/phpcs" --standard=Magento2 \
+            --report-full --report-checkstyle=/tmp/phpcs.xml src/ || status=$?
+          cs2pr /tmp/phpcs.xml || true
+          exit $status
 
   tests:
     name: PHPStan + PHPUnit (PHP ${{ matrix.php }})
