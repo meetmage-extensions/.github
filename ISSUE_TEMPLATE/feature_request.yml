@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest an improvement or a new extension
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      placeholder: As a store owner, I want ... so that ...
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you have tried
+      description: Other extensions or workarounds, and why they don't fit.
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Which frontend does this affect?
+      multiple: true
+      options:
+        - Hyvä
+        - Luma
+        - Admin only
+        - Headless / GraphQL

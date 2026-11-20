@@ -1,0 +1,62 @@
+name: Bug report
+description: Something isn't working as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting! Security issues must be reported privately (see SECURITY.md), not here.
+  - type: input
+    id: extension-version
+    attributes:
+      label: Extension version
+      placeholder: e.g. 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: magento-version
+    attributes:
+      label: Magento / Adobe Commerce version
+      placeholder: e.g. Magento Open Source 2.4.7-p3
+    validations:
+      required: true
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+      placeholder: e.g. 8.3
+    validations:
+      required: true
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Frontend theme
+      options:
+        - Hyvä
+        - Luma
+        - Custom theme based on Luma
+        - Headless / PWA
+        - Not frontend related
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: Include error messages or log entries from var/log/ (remove customer data first).
+    validations:
+      required: true
