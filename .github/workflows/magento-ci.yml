@@ -1,0 +1,64 @@
+# Reusable CI for MeetMage extension repositories.
+# Call it from an extension repo's .github/workflows/ci.yml:
+#
+#   on: [push, pull_request]
+#   jobs:
+#     ci:
+#       uses: meetmage-extensions/.github/.github/workflows/magento-ci.yml@main
+#
+# Magento packages are installed from the free Mage-OS mirror, so no Adobe
+# access keys are needed in CI.
+name: Magento CI
+
+on:
+  workflow_call:
+    inputs:
+      php-versions:
+        description: JSON list of PHP versions to test
+        type: string
+        default: '["8.1", "8.2", "8.3"]'
+      phpstan-level:
+        type: string
+        default: '6'
+
+jobs:
+  phpcs:
+    name: Magento coding standard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer, cs2pr
+      - name: Install coding standard
+        run: |
+          composer global config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+          composer global require --no-progress magento/magento-coding-standard
+      - name: Run PHPCS
+        run: $(composer global config bin-dir --absolute)/phpcs --standard=Magento2 --report=checkstyle src/ | cs2pr
+
+  tests:
+    name: PHPStan + PHPUnit (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ${{ fromJSON(inputs.php-versions) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: composer
+          coverage: none
+      - name: Use the Mage-OS mirror for magento/* packages
+        run: composer config repositories.mage-os composer https://mirror.mage-os.org/
+      - name: Install dependencies
+        run: composer install --no-progress --prefer-dist
+      - name: PHPStan
+        run: |
+          if [ -x vendor/bin/phpstan ]; then vendor/bin/phpstan analyse src/ --level=${{ inputs.phpstan-level }} --no-progress; else echo "phpstan not in require-dev, skipping"; fi
+      - name: PHPUnit
+        run: |
+          if [ -x vendor/bin/phpunit ] && [ -d tests ]; then vendor/bin/phpunit tests/; else echo "No tests yet, skipping"; fi
